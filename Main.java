@@ -68,6 +68,7 @@ public class Main {
             if (node.equals(startVertex)) {
                 node.setExplored(true);
                 node.setDistanceFromStartVertex(0);
+                System.out.println(node.getLabel());
                 queue.add(node);
             }
         }
@@ -75,40 +76,24 @@ public class Main {
         while (!queue.isEmpty()) {
             NodeType node = queue.removeFirst();
 
-            Set<NodeType> neighbors = graph.adjacentNodes(node);
-            Iterator<NodeType> neighborhood = neighbors.iterator();
-            NodeType currentNeighbor = neighborhood.next();
-
-            while (true) {
-                if (!nodeWasExplored(graph, currentNeighbor)) {
-                    currentNeighbor.setExplored(true);
-                    queue.add(currentNeighbor);
-                    System.out.println(currentNeighbor.getLabel());
+            for (NodeType neighbor : graph.adjacentNodes(node)) {
+                /** yeah, I know. Please notice that the method adjacentNodes from Guava was marked
+                 * as unstable at the time this code was written.
+                 * Besides, it returns Collections.unmodifiableSet */
+                if (!nodeWasExplored(graph, neighbor)) {
+                    neighbor.setExplored(true);
+                    if (!queue.contains(neighbor)) {
+                        queue.add(neighbor);
+                        System.out.println(neighbor.getLabel());
+                    }
                 }
-
-                if (neighborhood.hasNext())
-                    currentNeighbor = neighborhood.next();
-                else
-                    break;
             }
-
-//            for (NodeType neighbor : graph.adjacentNodes(node)) {
-//                if (!neighbor.isExplored()) {
-//                    neighbor.setExplored(true);
-//                    if (!queue.contains(neighbor)) {
-//                        queue.add(neighbor);
-//                        System.out.println(neighbor.getLabel());
-//                    }
-//                }
-//            }
         }
-
     }
 
     public static void main(String[] args) {
         initInputReader();
         MutableGraph<NodeType> graph = buildGraph();
         breadthFirstSearch(graph, new NodeType("1"));
-        // printGraph(graph);
     }
 }
