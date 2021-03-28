@@ -59,7 +59,7 @@ public class Main {
         return false;
     }
 
-    public static void breadthFirstSearch(MutableGraph<NodeType> graph, NodeType startVertex) {
+    public static void findShortestDistancesWithBreadthFirstSearch(MutableGraph<NodeType> graph, NodeType startVertex) {
         /* Creates a FIFO queue data structure, initialized with @startVertex */
         LinkedList<NodeType> queue = new LinkedList<NodeType>();
 
@@ -68,24 +68,31 @@ public class Main {
             if (node.equals(startVertex)) {
                 node.setExplored(true);
                 node.setDistanceFromStartVertex(0);
-                System.out.println(node.getLabel());
+                System.out.println(node.getLabel() + ": start vertex");
                 queue.add(node);
             }
         }
 
         while (!queue.isEmpty()) {
+            /* remove the vertex from the from the FIFO queue */
             NodeType node = queue.removeFirst();
 
-            for (NodeType neighbor : graph.adjacentNodes(node)) {
+            /* for each edge (@node, w) in adjacency list, do */
+            Set<NodeType> neighborhood = graph.adjacentNodes(node);
+            for (NodeType neighbor : neighborhood) {
                 /** yeah, I know. Please notice that the method adjacentNodes from Guava was marked
                  * as unstable at the time this code was written.
                  * Besides, it returns Collections.unmodifiableSet */
-                if (!nodeWasExplored(graph, neighbor)) {
+
+                if (!nodeWasExplored(graph, neighbor)) { /* if neighbor was inexplored, do */
                     neighbor.setExplored(true);
-                    if (!queue.contains(neighbor)) {
-                        queue.add(neighbor);
-                        System.out.println(neighbor.getLabel());
-                    }
+
+                    /* the shortest path from @startVertex to @neighbor is @node + 1 */
+                    neighbor.setDistanceFromStartVertex(node.getDistanceFromStartVertex() + 1);
+                    
+                    /* add @neighbor to the end of FIFO queue */
+                    queue.add(neighbor);
+                    System.out.println(neighbor.getLabel() + ": " + neighbor.getDistanceFromStartVertex());
                 }
             }
         }
@@ -94,6 +101,6 @@ public class Main {
     public static void main(String[] args) {
         initInputReader();
         MutableGraph<NodeType> graph = buildGraph();
-        breadthFirstSearch(graph, new NodeType("1"));
+        findShortestDistancesWithBreadthFirstSearch(graph, new NodeType("1"));
     }
 }
